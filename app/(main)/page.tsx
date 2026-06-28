@@ -11,22 +11,22 @@ import { ThemeToggle } from "@/components/shared/ThemeToggle";
 import { UserMenu } from "@/components/shared/UserMenu";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { EmptyState } from "@/components/shared/EmptyState";
+import { useAuth } from "@/components/providers/AuthProvider";
+import { useGreeting } from "@/hooks/use-greeting";
 import { fetchHomeData } from "@/lib/data-client";
-import { getGreeting } from "@/lib/greeting";
 import { pageTransition } from "@/lib/motion";
+import { getFirstName } from "@/lib/user-display";
 import { ChevronRight } from "lucide-react";
 import type { ActivityOutcome, KnowledgeObject } from "@/types";
 
 export default function HomePage() {
-  const [greeting, setGreeting] = useState("");
+  const { fullName } = useAuth();
+  const firstName = getFirstName(fullName);
+  const greeting = useGreeting(firstName);
   const [todayItems, setTodayItems] = useState<KnowledgeObject[]>([]);
   const [activity, setActivity] = useState<ActivityOutcome[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    setGreeting(getGreeting());
-  }, []);
 
   useEffect(() => {
     fetchHomeData()

@@ -44,7 +44,9 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  await supabase.auth.getUser();
+  await supabase.auth.getUser().catch((error) => {
+    console.error("Supabase session refresh failed:", error);
+  });
 
   return supabaseResponse;
 }

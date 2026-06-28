@@ -20,6 +20,7 @@ import {
   requireAuthenticatedRecordingIdentity,
 } from "@/lib/recording/guard";
 import { ensureRecordingWorkspace } from "@/lib/recording/workspace";
+import { isValidTimezone } from "@/lib/locale";
 import { createAdminClient, getUploadsBucket, isSupabaseConfigured } from "@/lib/supabase/admin";
 function sanitizeFileName(name: string): string {
   return name.replace(/[^\w.\-() ]+/g, "_").slice(0, 200) || "context";
@@ -29,6 +30,7 @@ function sanitizeTimezone(tz: unknown): string | undefined {
   if (typeof tz !== "string" || !tz.trim()) return undefined;
   const trimmed = tz.trim();
   if (trimmed.length > 64) return undefined;
+  if (!isValidTimezone(trimmed)) return undefined;
   return trimmed;
 }
 

@@ -3,8 +3,8 @@ import {
   buildSessionGenerationContext,
   formatSessionContextForPrompt,
   inferPrimaryLanguage,
-  localeFromLanguage,
 } from "@/lib/processing/session-context";
+import { localeFromLanguage } from "@/lib/locale";
 import type { RecordingSessionRow } from "@/lib/db/types";
 
 describe("session-context", () => {
@@ -48,5 +48,9 @@ describe("session-context", () => {
   it("maps language codes to locales", () => {
     expect(localeFromLanguage("fr")).toBe("fr-FR");
     expect(localeFromLanguage("English")).toBe("en-US");
+    expect(localeFromLanguage("hi")).toBe("hi-IN");
+    expect(localeFromLanguage("zh")).toBe("zh-CN");
+    expect(localeFromLanguage("xx")).toBe("en-US");
+    expect(localeFromLanguage("fr-CA")).toBe("fr-CA");
   });
 });

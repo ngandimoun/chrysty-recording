@@ -5,7 +5,7 @@ import { LogOut } from "lucide-react";
 import { useAuth } from "@/components/providers/AuthProvider";
 
 export function UserMenu() {
-  const { email, signOut, loading } = useAuth();
+  const { signOut, loading } = useAuth();
 
   if (loading) {
     return null;
@@ -13,11 +13,6 @@ export function UserMenu() {
 
   return (
     <div className="flex items-center gap-2">
-      {email ? (
-        <span className="hidden max-w-[140px] truncate text-xs text-muted-foreground sm:inline">
-          {email}
-        </span>
-      ) : null}
       <button
         type="button"
         onClick={() => void signOut()}

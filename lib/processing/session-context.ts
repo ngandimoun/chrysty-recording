@@ -1,4 +1,7 @@
 import type { RecordingSessionRow, TranscriptionDetail } from "@/lib/db/types";
+import { localeFromLanguage } from "@/lib/locale";
+
+export { localeFromLanguage };
 
 export interface SessionGenerationContext {
   sessionId: string;
@@ -7,34 +10,6 @@ export interface SessionGenerationContext {
   primaryLanguage: string;
   referenceLocalDate: string;
   locale: string;
-}
-
-const LANGUAGE_LOCALE: Record<string, string> = {
-  en: "en-US",
-  english: "en-US",
-  fr: "fr-FR",
-  french: "fr-FR",
-  es: "es-ES",
-  spanish: "es-ES",
-  de: "de-DE",
-  german: "de-DE",
-  it: "it-IT",
-  italian: "it-IT",
-  pt: "pt-PT",
-  portuguese: "pt-PT",
-  nl: "nl-NL",
-  ja: "ja-JP",
-  ko: "ko-KR",
-  zh: "zh-CN",
-  ar: "ar-SA",
-};
-
-export function localeFromLanguage(language: string): string {
-  const key = language.trim().toLowerCase();
-  if (LANGUAGE_LOCALE[key]) return LANGUAGE_LOCALE[key];
-  if (key.includes("-")) return key;
-  if (key.length === 2) return `${key}-${key.toUpperCase()}`;
-  return "en-US";
 }
 
 export function inferPrimaryLanguage(
