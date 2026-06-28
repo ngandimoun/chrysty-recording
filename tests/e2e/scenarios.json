@@ -1,0 +1,62 @@
+[
+  {
+    "id": "construction-inspection",
+    "fixture": "construction-inspection.webm",
+    "durationSeconds": 28,
+    "requiredKeywords": ["roof", "inspection", "contractor"],
+    "forbiddenKeywords": ["patient", "HIPAA", "lisinopril", "corn field", "restaurant kitchen"],
+    "expectedDocumentType": "inspection",
+    "artifactKind": "report",
+    "softDocumentType": false
+  },
+  {
+    "id": "medical-consult",
+    "fixture": "medical-consult.webm",
+    "durationSeconds": 26,
+    "requiredKeywords": ["patient", "blood pressure", "clinical"],
+    "forbiddenKeywords": ["roof shingles", "contractor bid", "corn yield", "kitchen refrigeration"],
+    "expectedDocumentType": "medical",
+    "artifactKind": "report",
+    "softDocumentType": false
+  },
+  {
+    "id": "legal-compliance",
+    "fixture": "legal-compliance.webm",
+    "durationSeconds": 26,
+    "requiredKeywords": ["contract", "compliance", "section"],
+    "forbiddenKeywords": ["roof", "blood pressure", "corn field", "restaurant"],
+    "expectedDocumentType": "legal",
+    "artifactKind": "memo",
+    "softDocumentType": false
+  },
+  {
+    "id": "sales-email",
+    "fixture": "sales-email.webm",
+    "durationSeconds": 22,
+    "requiredKeywords": ["email", "client", "delay"],
+    "forbiddenKeywords": ["roof shingles", "lisinopril", "corn field", "kitchen inspection"],
+    "expectedDocumentType": "generic",
+    "artifactKind": "email",
+    "softDocumentType": true
+  },
+  {
+    "id": "agriculture-field-report",
+    "fixture": "agriculture-field-report.webm",
+    "durationSeconds": 28,
+    "requiredKeywords": ["corn", "irrigation", "yield"],
+    "forbiddenKeywords": ["HIPAA", "contract clause", "roof shingles", "restaurant kitchen"],
+    "expectedDocumentType": null,
+    "artifactKind": "report",
+    "softDocumentType": true
+  },
+  {
+    "id": "hospitality-ops-report",
+    "fixture": "hospitality-ops-report.webm",
+    "durationSeconds": 28,
+    "requiredKeywords": ["restaurant", "kitchen", "staffing"],
+    "forbiddenKeywords": ["lisinopril", "corn field", "roof shingles", "contract section"],
+    "expectedDocumentType": null,
+    "artifactKind": "report",
+    "softDocumentType": true
+  }
+]

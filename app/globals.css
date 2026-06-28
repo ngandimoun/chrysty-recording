@@ -1,0 +1,500 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: oklch(0.995 0 0);
+  --foreground: oklch(0.145 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.145 0 0);
+  --muted: oklch(0.965 0.005 250);
+  --muted-foreground: oklch(0.5 0.01 250);
+  --accent: oklch(0.55 0.18 250);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(0.92 0.005 250);
+  --ring: oklch(0.55 0.18 250);
+  --destructive: oklch(0.55 0.22 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --shadow-soft: 0 1px 3px oklch(0 0 0 / 0.04), 0 4px 12px oklch(0 0 0 / 0.03);
+  --chart-1: oklch(0.55 0.18 250);
+  --chart-2: oklch(0.62 0.12 200);
+  --chart-3: oklch(0.58 0.1 280);
+  --chart-4: oklch(0.65 0.08 160);
+  --chart-5: oklch(0.52 0.06 30);
+  --radius-lg: 20px;
+  --radius-xl: 24px;
+}
+
+.dark {
+  --background: oklch(0.12 0.005 250);
+  --foreground: oklch(0.96 0 0);
+  --card: oklch(0.16 0.008 250);
+  --card-foreground: oklch(0.96 0 0);
+  --muted: oklch(0.2 0.01 250);
+  --muted-foreground: oklch(0.62 0.02 250);
+  --accent: oklch(0.62 0.16 250);
+  --accent-foreground: oklch(0.99 0 0);
+  --border: oklch(0.24 0.01 250);
+  --ring: oklch(0.62 0.16 250);
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.99 0 0);
+  --shadow-soft: 0 1px 3px oklch(0 0 0 / 0.2), 0 4px 12px oklch(0 0 0 / 0.15);
+  --chart-1: oklch(0.72 0.16 250);
+  --chart-2: oklch(0.74 0.11 200);
+  --chart-3: oklch(0.72 0.09 280);
+  --chart-4: oklch(0.76 0.08 160);
+  --chart-5: oklch(0.7 0.08 30);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-border: var(--border);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-lg: var(--radius-lg);
+  --radius-xl: var(--radius-xl);
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    @apply scroll-smooth antialiased;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+}
+
+@layer utilities {
+  /* Chrysty Design Language — typography scale */
+  .cdl-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+  }
+
+  .cdl-title {
+    font-size: 1.875rem;
+    font-weight: 700;
+    line-height: 1.2;
+  }
+
+  .cdl-section {
+    font-size: 1.375rem;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+
+  .cdl-body {
+    font-size: 1rem;
+    font-weight: 400;
+    line-height: 1.625;
+  }
+
+  .cdl-small {
+    font-size: 0.875rem;
+    font-weight: 400;
+    line-height: 1.5;
+  }
+
+  .cdl-caption {
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.4;
+    color: var(--muted-foreground);
+  }
+
+  .cdl-reading-column {
+    max-width: 42rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .cdl-divider {
+    height: 1px;
+    background: var(--border);
+    opacity: 0.6;
+  }
+
+  .cdl-highlight-person {
+    color: var(--accent);
+    font-weight: 500;
+  }
+
+  .cdl-highlight-date,
+  .cdl-highlight-money,
+  .cdl-highlight-number {
+    color: var(--foreground);
+    font-weight: 600;
+  }
+
+  .cdl-document[data-document-theme="executive"] .cdl-display {
+    letter-spacing: -0.03em;
+  }
+
+  .cdl-document[data-document-theme="notebook"] .cdl-body {
+    line-height: 1.75;
+  }
+
+  .cdl-document[data-document-theme="presentation"] {
+    --section-gap: 3rem;
+  }
+
+  .cdl-chip {
+    border-radius: 9999px;
+    background: color-mix(in oklch, var(--accent) 12%, transparent);
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+    color: var(--accent);
+  }
+
+  .cdl-date-pill {
+    border-radius: 9999px;
+    border: 1px solid var(--border);
+    background: var(--muted);
+    padding: 0.25rem 0.625rem;
+    font-size: 0.6875rem;
+    font-weight: 500;
+    line-height: 1.2;
+    color: var(--muted-foreground);
+  }
+
+  .cdl-trend {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    border-radius: 9999px;
+    padding: 0.125rem 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 600;
+  }
+
+  .cdl-trend-up {
+    background: color-mix(in oklch, var(--destructive) 12%, transparent);
+    color: var(--destructive);
+  }
+
+  .cdl-trend-down {
+    background: color-mix(in oklch, var(--accent) 12%, transparent);
+    color: var(--accent);
+  }
+
+  .cdl-trend-stable {
+    background: var(--muted);
+    color: var(--muted-foreground);
+  }
+
+  .cdl-callout {
+    border-left-width: 3px;
+    border-left-style: solid;
+  }
+
+  .cdl-callout-warning {
+    border-left-color: var(--destructive);
+    color: var(--destructive);
+  }
+
+  .cdl-callout-success {
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .cdl-callout-info {
+    border-left-color: var(--accent);
+    color: var(--accent);
+  }
+
+  /* Knowledge type icon badges — gradient glow with hover lift */
+  .cdl-type-icon {
+    @apply relative flex shrink-0 items-center justify-center rounded-2xl ring-1 ring-inset;
+    transition:
+      transform 200ms ease,
+      box-shadow 200ms ease;
+    overflow: visible;
+  }
+
+  .cdl-type-icon::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      circle at 28% 22%,
+      oklch(1 0 0 / 0.45) 0%,
+      oklch(1 0 0 / 0.08) 42%,
+      transparent 68%
+    );
+    pointer-events: none;
+  }
+
+  .dark .cdl-type-icon::after {
+    background: radial-gradient(
+      circle at 28% 22%,
+      oklch(1 0 0 / 0.18) 0%,
+      oklch(1 0 0 / 0.04) 42%,
+      transparent 68%
+    );
+  }
+
+  .cdl-type-icon > svg {
+    position: relative;
+    z-index: 1;
+  }
+
+  .group:hover .cdl-type-icon {
+    transform: scale(1.05);
+  }
+
+  .cdl-type-icon-chart-1 {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--chart-1) 24%, transparent),
+      color-mix(in oklch, var(--chart-1) 10%, transparent)
+    );
+    color: var(--chart-1);
+    --tw-ring-color: color-mix(in oklch, var(--chart-1) 28%, transparent);
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--chart-1) 20%, transparent);
+  }
+
+  .group:hover .cdl-type-icon-chart-1 {
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--chart-1) 32%, transparent);
+  }
+
+  .cdl-type-icon-chart-2 {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--chart-2) 24%, transparent),
+      color-mix(in oklch, var(--chart-2) 10%, transparent)
+    );
+    color: var(--chart-2);
+    --tw-ring-color: color-mix(in oklch, var(--chart-2) 28%, transparent);
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--chart-2) 20%, transparent);
+  }
+
+  .group:hover .cdl-type-icon-chart-2 {
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--chart-2) 32%, transparent);
+  }
+
+  .cdl-type-icon-chart-3 {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--chart-3) 24%, transparent),
+      color-mix(in oklch, var(--chart-3) 10%, transparent)
+    );
+    color: var(--chart-3);
+    --tw-ring-color: color-mix(in oklch, var(--chart-3) 28%, transparent);
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--chart-3) 20%, transparent);
+  }
+
+  .group:hover .cdl-type-icon-chart-3 {
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--chart-3) 32%, transparent);
+  }
+
+  .cdl-type-icon-chart-4 {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--chart-4) 24%, transparent),
+      color-mix(in oklch, var(--chart-4) 10%, transparent)
+    );
+    color: var(--chart-4);
+    --tw-ring-color: color-mix(in oklch, var(--chart-4) 28%, transparent);
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--chart-4) 20%, transparent);
+  }
+
+  .group:hover .cdl-type-icon-chart-4 {
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--chart-4) 32%, transparent);
+  }
+
+  .cdl-type-icon-chart-5 {
+    background: linear-gradient(
+      135deg,
+      color-mix(in oklch, var(--chart-5) 28%, transparent),
+      color-mix(in oklch, var(--chart-5) 12%, transparent)
+    );
+    color: var(--chart-5);
+    --tw-ring-color: color-mix(in oklch, var(--chart-5) 32%, transparent);
+    box-shadow: 0 2px 10px color-mix(in oklch, var(--chart-5) 22%, transparent);
+  }
+
+  .group:hover .cdl-type-icon-chart-5 {
+    box-shadow: 0 4px 16px color-mix(in oklch, var(--chart-5) 36%, transparent);
+  }
+
+  .shadow-soft {
+    box-shadow: var(--shadow-soft);
+  }
+
+  .pb-safe {
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
+  }
+
+  .pt-safe {
+    padding-top: max(0.5rem, env(safe-area-inset-top));
+  }
+
+  /* Recharts — theme-aware text and grid (SVG defaults are dark-mode hostile) */
+  .recharts-cartesian-axis-tick-value {
+    fill: var(--muted-foreground);
+  }
+
+  .recharts-cartesian-grid line {
+    stroke: var(--border);
+  }
+
+  .recharts-default-tooltip {
+    background: var(--card) !important;
+    border-color: var(--border) !important;
+    color: var(--foreground) !important;
+  }
+
+  .recharts-tooltip-label,
+  .recharts-tooltip-item-name,
+  .recharts-tooltip-item-value {
+    color: var(--foreground) !important;
+  }
+
+  .recharts-legend-item-text {
+    color: var(--muted-foreground) !important;
+  }
+}
+
+@keyframes pulse-ring {
+  0% {
+    transform: scale(1);
+    opacity: 0.65;
+  }
+  100% {
+    transform: scale(1.55);
+    opacity: 0;
+  }
+}
+
+@keyframes record-ambient-glow {
+  0%,
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.55;
+  }
+  33% {
+    transform: scale(1.06) rotate(120deg);
+    opacity: 0.75;
+  }
+  66% {
+    transform: scale(0.98) rotate(240deg);
+    opacity: 0.6;
+  }
+}
+
+.record-ambient-glow {
+  background: conic-gradient(
+    from 0deg,
+    color-mix(in oklch, var(--chart-1) 35%, transparent),
+    color-mix(in oklch, var(--chart-2) 30%, transparent),
+    color-mix(in oklch, var(--chart-3) 35%, transparent),
+    color-mix(in oklch, var(--chart-4) 25%, transparent),
+    color-mix(in oklch, var(--chart-5) 20%, transparent),
+    color-mix(in oklch, var(--chart-1) 35%, transparent)
+  );
+  filter: blur(40px);
+  animation: record-ambient-glow 8s ease-in-out infinite;
+}
+
+.record-pulse-ring {
+  position: absolute;
+  border-radius: 9999px;
+  pointer-events: none;
+  animation: pulse-ring 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.record-pulse-ring-1 {
+  inset: 0;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--chart-1) 45%, transparent) 0%,
+    color-mix(in oklch, var(--chart-3) 25%, transparent) 45%,
+    transparent 70%
+  );
+}
+
+.record-pulse-ring-2 {
+  inset: -4px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--chart-2) 40%, transparent) 0%,
+    color-mix(in oklch, var(--accent) 20%, transparent) 50%,
+    transparent 72%
+  );
+  animation-delay: 0.6s;
+}
+
+.record-pulse-ring-3 {
+  inset: 2px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--chart-3) 35%, transparent) 0%,
+    color-mix(in oklch, var(--chart-4) 20%, transparent) 48%,
+    transparent 70%
+  );
+  animation-delay: 1.2s;
+}
+
+.record-pulse-ring-4 {
+  inset: -8px;
+  background: radial-gradient(
+    circle,
+    color-mix(in oklch, var(--chart-5) 30%, transparent) 0%,
+    color-mix(in oklch, var(--chart-1) 18%, transparent) 52%,
+    transparent 75%
+  );
+  animation-delay: 1.8s;
+}
+
+.record-button-face {
+  background: linear-gradient(
+    135deg,
+    var(--accent) 0%,
+    color-mix(in oklch, var(--accent) 85%, var(--chart-3)) 50%,
+    color-mix(in oklch, var(--accent) 70%, var(--chart-2)) 100%
+  );
+}
+
+@keyframes waveform {
+  0%,
+  100% {
+    transform: scaleY(0.4);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.animate-pulse-ring {
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.animate-waveform {
+  animation: waveform 0.8s ease-in-out infinite;
+}

@@ -1,0 +1,73 @@
+{
+  "recordingKey": "rk_doc_e2e_3ed0b96c9911",
+  "results": [
+    {
+      "scenarioId": "legal-compliance",
+      "sessionId": "rec-doc-legal-co-1782664274605",
+      "poll": {
+        "ok": true,
+        "elapsedSec": 180,
+        "phasesSeen": [
+          "transcribing",
+          "observing",
+          "scoring",
+          "planning",
+          "materializing",
+          "finishing"
+        ],
+        "final": {
+          "status": "completed",
+          "processingStep": 3,
+          "errorMessage": null,
+          "enrichmentStatus": "pending",
+          "pipelinePhase": "finishing",
+          "analystSummary": "The user is managing a contractual breach involving data retention (Section 4.2). The immediate priority is drafting a legal compliance memo to initiate a 30-day remediation process, which requires mandatory legal review.",
+          "observationCount": 3,
+          "objectCount": 9
+        }
+      },
+      "assertion": {
+        "ok": true,
+        "sessionId": "rec-doc-legal-co-1782664274605",
+        "scenarioId": "legal-compliance",
+        "documentCount": 2,
+        "primaryDocumentId": "ko-document-1782664417736-f1zhx",
+        "documents": [
+          {
+            "id": "ko-document-1782664417736-f1zhx",
+            "title": "Legal Compliance Memo: Vendor Contract Breach",
+            "documentType": "legal",
+            "blockCount": 5,
+            "validation": {
+              "ok": true,
+              "errors": []
+            },
+            "text": "Legal Compliance Memo: Data Retention Breach  This memo addresses a formal breach of Section 4.2 regarding data retention policies within the current vendor contract. A mandatory thirty day remediation period has been initiated to bring the vendor back into compliance. All subsequent actions and documentation related to this breach require a formal legal review before finalization. Section 4.2 Data Retention: Specifies the mandatory duration and security protocols for maintaining records and the immediate disposal of expired data. Draft formal notice of breach to vendor Initiate thirty day remediation countdown Submit all draft responses for legal review Strict adherence to the thirty day timeline is required to avoid further contractual penalties or termination rights. Legal Compliance Memo: Data Retention Breach\n\nThis memo addresses a formal breach of Section 4.2 regarding data retention policies within the current vendor contract.\n\nA mandatory thirty day remediation period has been initiated to bring the vendor back into compliance.\n\nAll subsequent actions and documentation related to this breach require a formal legal review before finalization.\n\nSection 4.2 Data Retention: Specifies the mandatory duration and security protocols for maintaining records and the immediate disposal of expired data.\n\nBreach of Section 4.2 identified and recorded. (2026-06-28)\nCommencement of the thirty day remediation window. (2026-06-29)\nDeadline for full remediation and compliance verification. (2026-07-28)\n\nDraft formal notice of breach to vendor\nInitiate thirty day remediation countdown\nSubmit all draft responses for legal review\n\nStrict adherence to the thirty day timeline is required to avoid further contractual penalties or termination rights. Legal Compliance Memo: Vendor Contract Breach"
+          },
+          {
+            "id": "ko-document-1782664439170-d8oj8",
+            "title": "Attention: Follow-up on Legal Compliance Memo",
+            "documentType": "generic",
+            "blockCount": 5,
+            "validation": {
+              "ok": true,
+              "errors": []
+            },
+            "text": "Vendor Contract Breach Notification  The vendor has breached section 4.2 of the contract regarding data retention policies. A formal legal compliance memo is required to document the breach and initiate remediation steps. The remediation process must be completed within 30 days and requires a mandatory legal review before finalization. Section 4.2 Data Retention: The vendor failed to adhere to the specified data retention and disposal schedules defined in the master service agreement. Outline the specific nature of the breach and required corrective actions. Notify vendor and track progress against the July 28 2026 deadline. Obtain formal sign-off from the legal department on the proposed remediation plan. Immediate attention is required to ensure the 30-day window is not exceeded. Compliance with section 4.2 is critical for regulatory alignment. Vendor Contract Breach Notification\n\nThe vendor has breached section 4.2 of the contract regarding data retention policies. A formal legal compliance memo is required to document the breach and initiate remediation steps.\n\nThe remediation process must be completed within 30 days and requires a mandatory legal review before finalization.\n\nSection 4.2 Data Retention: The vendor failed to adhere to the specified data retention and disposal schedules defined in the master service agreement.\n\nOutline the specific nature of the breach and required corrective actions.\nNotify vendor and track progress against the July 28 2026 deadline.\nObtain formal sign-off from the legal department on the proposed remediation plan.\n\nBreach Identified (2026-06-28)\nMemo Completion Due (2026-07-05)\nRemediation Deadline (2026-07-28)\n\nImmediate attention is required to ensure the 30-day window is not exceeded. Compliance with section 4.2 is critical for regulatory alignment. Attention: Follow-up on Legal Compliance Memo"
+          }
+        ],
+        "errors": [],
+        "warnings": [],
+        "status": "completed",
+        "analystSummary": "The user is managing a contractual breach involving data retention (Section 4.2). The immediate priority is drafting a legal compliance memo to initiate a 30-day remediation process, which requires mandatory legal review."
+      },
+      "pass": true,
+      "documentIds": [
+        "ko-document-1782664417736-f1zhx",
+        "ko-document-1782664439170-d8oj8"
+      ]
+    }
+  ],
+  "crossScenarioErrors": [],
+  "allPass": true
+}
