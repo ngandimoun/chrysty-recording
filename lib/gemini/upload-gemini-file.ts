@@ -4,6 +4,7 @@ import { access, writeFile, readFile, unlink, mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
+  extensionForMime,
   extensionFromFilename,
   geminiMimeForExtension,
   needsAudioTranscode,
@@ -69,6 +70,46 @@ async function convertAudioToMp3(input: Buffer, inputExt: string): Promise<Buffe
   }
 }
 
+function resolveAudioExtension(options: {
+  ext?: string;
+  mimeType?: string;
+  fileName?: string;
+}): string {
+  if (options.ext) {
+    return options.ext === "mp4" ? "m4a" : options.ext;
+  }
+
+  const fromName = options.fileName ? extensionFromFilename(options.fileName) : null;
+  if (fromName) {
+    return fromName === "mp4" ? "m4a" : fromName;
+  }
+
+  if (options.mimeType) {
+    return extensionForMime(options.mimeType);
+  }
+
+  return "webm";
+}
+
+export async function prepareAudioForGemini(
+  buffer: Buffer,
+  options: { ext?: string; mimeType?: string; fileName?: string } = {}
+): Promise<{ buffer: Buffer; mimeType: string }> {
+  const ext = resolveAudioExtension(options);
+
+  if (needsAudioTranscode(ext)) {
+    return {
+      buffer: await convertAudioToMp3(buffer, ext),
+      mimeType: "audio/mp3",
+    };
+  }
+
+  return {
+    buffer,
+    mimeType: geminiMimeForExtension(ext),
+  };
+}
+
 export async function downloadFromSupabase(bucket: string, path: string): Promise<Buffer> {
   const { data, error } = await createAdminClient().storage.from(bucket).download(path);
   if (error || !data) throw error ?? new Error("Failed to download file");
@@ -113,13 +154,7 @@ export async function uploadAudioFromSupabase(
 ): Promise<{ uri: string; mimeType: string }> {
   const raw = await downloadSessionFile(storagePath);
   const ext = extensionFromStoragePath(storagePath);
-  let buffer = raw;
-  let mimeType = geminiMimeForExtension(ext);
-
-  if (needsAudioTranscode(ext)) {
-    buffer = await convertAudioToMp3(raw, ext);
-    mimeType = "audio/mp3";
-  }
+  const { buffer, mimeType } = await prepareAudioForGemini(raw, { ext });
 
   const file = await uploadBufferToGemini(buffer, mimeType, `${sessionId}-audio`);
   if (!file.uri) throw new Error("Gemini file missing uri");

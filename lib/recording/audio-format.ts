@@ -70,5 +70,10 @@ export function geminiMimeForExtension(ext: string): string {
 }
 
 export function needsAudioTranscode(ext: string): boolean {
-  return !["mp3", "wav", "ogg", "m4a", "aac"].includes(ext);
+  return !["mp3", "wav", "ogg"].includes(ext);
+}
+
+export function needsAudioTranscodeForMime(mime: string): boolean {
+  const ext = extensionForMime(mime);
+  return needsAudioTranscode(ext);
 }

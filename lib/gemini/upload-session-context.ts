@@ -1,4 +1,8 @@
-import { downloadSessionFile, uploadBufferToGemini } from "@/lib/gemini/upload-gemini-file";
+import {
+  downloadSessionFile,
+  prepareAudioForGemini,
+  uploadBufferToGemini,
+} from "@/lib/gemini/upload-gemini-file";
 import {
   getAttachmentsBySession,
   updateAttachmentGeminiUri,
@@ -24,21 +28,35 @@ export async function uploadAttachmentToGemini(
 ): Promise<GeminiContextPart | null> {
   try {
     const buffer = await downloadSessionFile(attachment.storagePath);
+    const isAudio = attachment.mimeType.toLowerCase().startsWith("audio/");
+
+    let uploadBuffer = buffer;
+    let uploadMimeType = attachment.mimeType;
+
+    if (isAudio) {
+      const prepared = await prepareAudioForGemini(buffer, {
+        mimeType: attachment.mimeType,
+        fileName: attachment.fileName,
+      });
+      uploadBuffer = prepared.buffer;
+      uploadMimeType = prepared.mimeType;
+    }
+
     const file = await uploadBufferToGemini(
-      buffer,
-      attachment.mimeType,
+      uploadBuffer,
+      uploadMimeType,
       attachment.fileName
     );
-    if (!file.uri || !file.mimeType) {
+    if (!file.uri) {
       throw new Error("Gemini file missing uri");
     }
 
     await updateAttachmentGeminiUri(attachment.id, { geminiFileUri: file.uri });
 
     return {
-      type: mimeToGeminiPartType(file.mimeType),
+      type: mimeToGeminiPartType(uploadMimeType),
       uri: file.uri,
-      mime_type: file.mimeType,
+      mime_type: uploadMimeType,
       fileName: attachment.fileName,
     };
   } catch (err) {
