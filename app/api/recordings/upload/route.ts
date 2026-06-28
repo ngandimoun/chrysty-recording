@@ -13,6 +13,7 @@ import {
 } from "@/lib/chrysty/guard";
 import {
   isAllowedAudioMime,
+  isStorageMimeRejectionError,
   MIN_AUDIO_BYTES,
   resolveAudioExtension,
 } from "@/lib/recording/audio-format";
@@ -24,6 +25,26 @@ import { isValidTimezone } from "@/lib/locale";
 import { createAdminClient, getUploadsBucket, isSupabaseConfigured } from "@/lib/supabase/admin";
 function sanitizeFileName(name: string): string {
   return name.replace(/[^\w.\-() ]+/g, "_").slice(0, 200) || "context";
+}
+
+function uploadErrorStatus(message: string): number {
+  return isStorageMimeRejectionError(message) ? 400 : 500;
+}
+
+function logUploadFailure(
+  sessionId: string,
+  details: {
+    normalizedAudioMime: string;
+    ext: string;
+    byteLength: number;
+    storagePath: string;
+    message: string;
+  }
+) {
+  console.error("[recordings/upload] storage upload failed", {
+    sessionId,
+    ...details,
+  });
 }
 
 function sanitizeTimezone(tz: unknown): string | undefined {
@@ -120,7 +141,17 @@ export async function POST(request: NextRequest) {
       });
 
     if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
+      logUploadFailure(sessionId, {
+        normalizedAudioMime,
+        ext,
+        byteLength: buffer.byteLength,
+        storagePath,
+        message: uploadError.message,
+      });
+      return NextResponse.json(
+        { error: uploadError.message },
+        { status: uploadErrorStatus(uploadError.message) }
+      );
     }
 
     await createSession({
@@ -162,7 +193,16 @@ export async function POST(request: NextRequest) {
         });
 
       if (contextError) {
-        return NextResponse.json({ error: contextError.message }, { status: 500 });
+        console.error("[recordings/upload] context upload failed", {
+          sessionId,
+          contextPath,
+          mimeType,
+          message: contextError.message,
+        });
+        return NextResponse.json(
+          { error: contextError.message },
+          { status: uploadErrorStatus(contextError.message) }
+        );
       }
 
       attachmentRecords.push({

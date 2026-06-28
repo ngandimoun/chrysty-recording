@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  ALLOWED_UPLOAD_AUDIO_MIMES,
   extensionForMime,
   isLikelyAudioFile,
   needsAudioTranscode,
@@ -48,5 +49,28 @@ describe("isLikelyAudioFile", () => {
 
   it("rejects non-audio files", () => {
     expect(isLikelyAudioFile("application/pdf", "doc.pdf")).toBe(false);
+  });
+});
+
+/** Mirror of recording-uploads bucket audio entries in storage migrations. */
+const RECORDING_UPLOADS_BUCKET_AUDIO_MIMES = [
+  "audio/mpeg",
+  "audio/mp3",
+  "audio/wav",
+  "audio/x-wav",
+  "audio/webm",
+  "audio/ogg",
+  "audio/mp4",
+  "audio/m4a",
+  "audio/x-m4a",
+  "audio/aac",
+] as const;
+
+describe("ALLOWED_UPLOAD_AUDIO_MIMES vs storage bucket", () => {
+  it("includes every app-accepted upload MIME in the bucket allowlist", () => {
+    const bucket = new Set<string>(RECORDING_UPLOADS_BUCKET_AUDIO_MIMES);
+    for (const mime of ALLOWED_UPLOAD_AUDIO_MIMES) {
+      expect(bucket.has(mime)).toBe(true);
+    }
   });
 });

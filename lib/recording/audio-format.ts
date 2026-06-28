@@ -1,4 +1,4 @@
-const ALLOWED_AUDIO_MIMES = new Set([
+export const ALLOWED_UPLOAD_AUDIO_MIMES = [
   "audio/webm",
   "audio/mp4",
   "audio/m4a",
@@ -7,8 +7,11 @@ const ALLOWED_AUDIO_MIMES = new Set([
   "audio/wav",
   "audio/x-wav",
   "audio/mpeg",
+  "audio/mp3",
   "audio/aac",
-]);
+] as const;
+
+const ALLOWED_AUDIO_MIMES = new Set<string>(ALLOWED_UPLOAD_AUDIO_MIMES);
 
 export const MIN_AUDIO_BYTES = 1024;
 
@@ -64,6 +67,11 @@ export function isLikelyAudioFile(mimeType: string, fileName?: string): boolean 
 export function isAllowedAudioMime(mime: string): boolean {
   const base = mime.split(";")[0].trim().toLowerCase();
   return ALLOWED_AUDIO_MIMES.has(base);
+}
+
+export function isStorageMimeRejectionError(message: string): boolean {
+  const lower = message.toLowerCase();
+  return lower.includes("mime type") && lower.includes("not supported");
 }
 
 export function geminiMimeForExtension(ext: string): string {
