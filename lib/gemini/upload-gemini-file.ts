@@ -1,12 +1,12 @@
 import { execFile } from "node:child_process";
 import { promisify } from "node:util";
-import { writeFile, readFile, unlink, mkdtemp } from "node:fs/promises";
+import { access, writeFile, readFile, unlink, mkdtemp } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import {
   extensionFromFilename,
   geminiMimeForExtension,
-  needsTranscodeToMp3,
+  needsAudioTranscode,
 } from "@/lib/recording/audio-format";
 import { getGeminiClient } from "@/lib/gemini/client";
 import { createAdminClient, getUploadsBucket } from "@/lib/supabase/admin";
@@ -21,6 +21,14 @@ function getFfmpegPath(): string {
     return ffmpegStatic ?? "ffmpeg";
   } catch {
     return "ffmpeg";
+  }
+}
+
+async function assertFfmpegAvailable(ffmpegPath: string): Promise<void> {
+  try {
+    await access(ffmpegPath);
+  } catch {
+    throw new Error("Audio transcoder unavailable in this environment");
   }
 }
 function sleep(ms: number) {
@@ -42,6 +50,7 @@ async function convertAudioToMp3(input: Buffer, inputExt: string): Promise<Buffe
   try {
     await writeFile(inputPath, input);
     const ffmpegPath = getFfmpegPath();
+    await assertFfmpegAvailable(ffmpegPath);
     await execFileAsync(ffmpegPath, [
       "-y",
       "-i",
@@ -107,7 +116,7 @@ export async function uploadAudioFromSupabase(
   let buffer = raw;
   let mimeType = geminiMimeForExtension(ext);
 
-  if (needsTranscodeToMp3(ext)) {
+  if (needsAudioTranscode(ext)) {
     buffer = await convertAudioToMp3(raw, ext);
     mimeType = "audio/mp3";
   }

@@ -62,13 +62,13 @@ export function geminiMimeForExtension(ext: string): string {
     case "m4a":
     case "mp4":
     case "aac":
-      return "audio/mp3";
+      return "audio/aac";
     case "webm":
     default:
       return "audio/mp3";
   }
 }
 
-export function needsTranscodeToMp3(ext: string): boolean {
-  return !["mp3", "wav"].includes(ext);
+export function needsAudioTranscode(ext: string): boolean {
+  return !["mp3", "wav", "ogg", "m4a", "aac"].includes(ext);
 }

@@ -13,6 +13,7 @@ import {
   respondRecordingIdentityError,
 } from "@/lib/recording/guard";
 
+export const runtime = "nodejs";
 export const maxDuration = 300;
 
 async function assertSessionAccess(request: NextRequest, sessionId: string) {
