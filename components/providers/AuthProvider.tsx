@@ -13,7 +13,7 @@ import { getLoginRedirectUrl } from "@/lib/chrysty/constants";
 import { configurePlatformForBrowser } from "@/lib/chrysty/platform";
 import { mergeAnonymousWorkspace } from "@/lib/data-client";
 import { RECORDING_KEY_STORAGE } from "@/lib/recording/constants";
-import { getOrCreateRecordingKey } from "@/lib/recording/recording-key";
+import { getStoredRecordingKey } from "@/lib/recording/recording-key";
 import { createClient } from "@/lib/supabase/client";
 
 interface AuthUser {
@@ -48,7 +48,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(isBrowserSupabaseConfigured());
 
   const mergeWorkspace = useCallback(async () => {
-    getOrCreateRecordingKey();
+    if (!getStoredRecordingKey()) return;
     try {
       await mergeAnonymousWorkspace();
     } catch {

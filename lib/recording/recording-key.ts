@@ -21,5 +21,10 @@ export function getOrCreateRecordingKey(): string {
 }
 
 export function recordingKeyHeaders(): HeadersInit {
+  const key = getStoredRecordingKey();
+  return key ? { "x-recording-key": key } : {};
+}
+
+export function uploadRecordingKeyHeaders(): HeadersInit {
   return { "x-recording-key": getOrCreateRecordingKey() };
 }

@@ -16,6 +16,7 @@ import { fadeSlideUp } from "@/lib/motion";
 import { formatSessionMeta } from "@/lib/processing/pipeline-ui";
 import { toastDeleted, toastError } from "@/lib/toast";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
+import { useAuth } from "@/components/providers/AuthProvider";
 
 function statusLabel(status: string) {
   switch (status) {
@@ -34,6 +35,7 @@ function statusLabel(status: string) {
 
 export function SessionsList() {
   const router = useRouter();
+  const { loading: authLoading } = useAuth();
   const [sessions, setSessions] = useState<
     Array<{
       id: string;
@@ -55,8 +57,10 @@ export function SessionsList() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
+    setLoading(true);
     load();
-  }, []);
+  }, [authLoading]);
 
   const handleDelete = async (sessionId: string) => {
     if (!confirm("Delete this recording?")) return;

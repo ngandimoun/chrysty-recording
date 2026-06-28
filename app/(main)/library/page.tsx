@@ -10,6 +10,7 @@ import {
   fetchTimelineGroups,
   searchKnowledgeObjectsApi,
 } from "@/lib/data-client";
+import { useAuth } from "@/components/providers/AuthProvider";
 import { pageTransition } from "@/lib/motion";
 import { Mic } from "lucide-react";
 import type { KnowledgeObject } from "@/types";
@@ -36,6 +37,7 @@ function saveRecentSearch(query: string) {
 }
 
 export default function LibraryPage() {
+  const { loading: authLoading } = useAuth();
   const [query, setQuery] = useState("");
   const [groups, setGroups] = useState<Array<{ label: string; objects: KnowledgeObject[] }>>(
     []
@@ -50,6 +52,9 @@ export default function LibraryPage() {
   }, []);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    setLoading(true);
     fetchTimelineGroups()
       .then((data) => {
         setGroups(data);
@@ -59,11 +64,11 @@ export default function LibraryPage() {
         setError(err instanceof Error ? err.message : "Failed to load library");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading]);
 
   useEffect(() => {
-    if (!query.trim()) {
-      setSearchResults(null);
+    if (authLoading || !query.trim()) {
+      if (!query.trim()) setSearchResults(null);
       return;
     }
     const timer = setTimeout(() => {
@@ -76,7 +81,7 @@ export default function LibraryPage() {
         .catch(() => setSearchResults([]));
     }, 300);
     return () => clearTimeout(timer);
-  }, [query]);
+  }, [authLoading, query]);
 
   const filteredGroups = useMemo(() => {
     if (!query.trim()) return groups;

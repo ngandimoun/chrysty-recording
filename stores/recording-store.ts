@@ -7,7 +7,7 @@ import {
   getClientTimezone,
   getRecorderConfig,
 } from "@/lib/recording/browser-support";
-import { recordingKeyHeaders } from "@/lib/recording/recording-key";
+import { uploadRecordingKeyHeaders } from "@/lib/recording/recording-key";
 import type { KnowledgeObject } from "@/types";
 
 interface RecordingState {
@@ -189,7 +189,7 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
     const uploadRes = await fetch("/api/recordings/upload", {
       method: "POST",
       credentials: "include",
-      headers: recordingKeyHeaders(),
+      headers: uploadRecordingKeyHeaders(),
       body: formData,
     });
 

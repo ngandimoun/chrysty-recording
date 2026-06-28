@@ -14,19 +14,24 @@ import { RecommendationsPanel } from "@/components/insights/RecommendationsPanel
 import { EmptyState } from "@/components/shared/EmptyState";
 import { LoadingSkeleton } from "@/components/shared/LoadingSkeleton";
 import { fetchInsights } from "@/lib/data-client";
+import { useAuth } from "@/components/providers/AuthProvider";
 import type { InsightsData } from "@/types";
 
 export default function InsightsPage() {
+  const { loading: authLoading } = useAuth();
   const [data, setData] = useState<InsightsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    setLoading(true);
     fetchInsights()
       .then(setData)
       .catch((err) => setError(err instanceof Error ? err.message : "Failed to load"))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading]);
 
   return (
     <main className="space-y-5 py-6">

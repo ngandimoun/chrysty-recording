@@ -20,7 +20,7 @@ import { ChevronRight } from "lucide-react";
 import type { ActivityOutcome, KnowledgeObject } from "@/types";
 
 export default function HomePage() {
-  const { fullName } = useAuth();
+  const { fullName, loading: authLoading } = useAuth();
   const firstName = getFirstName(fullName);
   const greeting = useGreeting(firstName);
   const [todayItems, setTodayItems] = useState<KnowledgeObject[]>([]);
@@ -29,6 +29,9 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (authLoading) return;
+
+    setLoading(true);
     fetchHomeData()
       .then((data) => {
         setTodayItems(data.todayItems);
@@ -39,7 +42,7 @@ export default function HomePage() {
         setError(err instanceof Error ? err.message : "Failed to load");
       })
       .finally(() => setLoading(false));
-  }, []);
+  }, [authLoading]);
 
   return (
     <motion.main {...pageTransition} className="space-y-8 py-6">
