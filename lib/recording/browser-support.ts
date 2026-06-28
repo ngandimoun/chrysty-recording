@@ -72,6 +72,10 @@ export function getRecorderConfig(): RecorderConfig {
   return { mimeType: undefined, extension: "webm" };
 }
 
+export function getMediaRecorderTimesliceMs(): number | undefined {
+  return isApplePlatform() ? undefined : 1000;
+}
+
 export function getRecordingUnavailableMessage(): string | null {
   if (!isSecureRecordingContext()) {
     return "Voice recording requires a secure connection (HTTPS). Open this app over HTTPS or localhost.";

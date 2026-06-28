@@ -3,6 +3,7 @@ import {
   prepareAudioForGemini,
   uploadBufferToGemini,
 } from "@/lib/gemini/upload-gemini-file";
+import { isLikelyAudioFile } from "@/lib/recording/audio-format";
 import {
   getAttachmentsBySession,
   updateAttachmentGeminiUri,
@@ -28,7 +29,7 @@ export async function uploadAttachmentToGemini(
 ): Promise<GeminiContextPart | null> {
   try {
     const buffer = await downloadSessionFile(attachment.storagePath);
-    const isAudio = attachment.mimeType.toLowerCase().startsWith("audio/");
+    const isAudio = isLikelyAudioFile(attachment.mimeType, attachment.fileName);
 
     let uploadBuffer = buffer;
     let uploadMimeType = attachment.mimeType;

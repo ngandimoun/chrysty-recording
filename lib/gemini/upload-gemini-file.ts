@@ -14,6 +14,13 @@ import { createAdminClient, getUploadsBucket } from "@/lib/supabase/admin";
 
 const execFileAsync = promisify(execFile);
 
+const UNSUPPORTED_GEMINI_AUDIO_MIMES = new Set([
+  "audio/mp4",
+  "audio/x-m4a",
+  "audio/m4a",
+  "audio/aac",
+]);
+
 function getFfmpegPath(): string {
   try {
     // Runtime require — ffmpeg-static is externalized in next.config.ts
@@ -32,9 +39,22 @@ async function assertFfmpegAvailable(ffmpegPath: string): Promise<void> {
     throw new Error("Audio transcoder unavailable in this environment");
   }
 }
+
 function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
+
+function normalizeMime(mime: string | undefined): string | undefined {
+  if (!mime) return undefined;
+  return mime.split(";")[0].trim().toLowerCase();
+}
+
+function isUnsupportedGeminiAudioMime(mime: string | undefined): boolean {
+  const base = normalizeMime(mime);
+  return base !== undefined && UNSUPPORTED_GEMINI_AUDIO_MIMES.has(base);
+}
+
+export const TRANSCRIPTION_INLINE_MIME = "audio/mpeg";
 
 function extensionFromStoragePath(storagePath: string): string {
   const fromName = extensionFromFilename(storagePath);
@@ -42,6 +62,21 @@ function extensionFromStoragePath(storagePath: string): string {
   if (storagePath.includes("webm")) return "webm";
   if (storagePath.includes("m4a")) return "m4a";
   return "webm";
+}
+
+export function resolveSessionInputExtension(
+  storagePath: string,
+  recorderMimeType?: string,
+  storageContentType?: string
+): string {
+  const fromStorage = normalizeMime(storageContentType);
+  if (fromStorage?.startsWith("audio/")) {
+    return extensionForMime(fromStorage);
+  }
+  if (recorderMimeType) {
+    return extensionForMime(recorderMimeType);
+  }
+  return extensionFromStoragePath(storagePath);
 }
 
 async function convertAudioToMp3(input: Buffer, inputExt: string): Promise<Buffer> {
@@ -64,6 +99,9 @@ async function convertAudioToMp3(input: Buffer, inputExt: string): Promise<Buffe
       outputPath,
     ]);
     return await readFile(outputPath);
+  } catch (err) {
+    const detail = err instanceof Error ? err.message : String(err);
+    throw new Error(`Audio transcode failed (inputExt=${inputExt}): ${detail}`);
   } finally {
     await unlink(inputPath).catch(() => {});
     await unlink(outputPath).catch(() => {});
@@ -75,6 +113,10 @@ function resolveAudioExtension(options: {
   mimeType?: string;
   fileName?: string;
 }): string {
+  if (options.mimeType) {
+    return extensionForMime(options.mimeType);
+  }
+
   if (options.ext) {
     return options.ext === "mp4" ? "m4a" : options.ext;
   }
@@ -82,10 +124,6 @@ function resolveAudioExtension(options: {
   const fromName = options.fileName ? extensionFromFilename(options.fileName) : null;
   if (fromName) {
     return fromName === "mp4" ? "m4a" : fromName;
-  }
-
-  if (options.mimeType) {
-    return extensionForMime(options.mimeType);
   }
 
   return "webm";
@@ -107,6 +145,52 @@ export async function prepareAudioForGemini(
   return {
     buffer,
     mimeType: geminiMimeForExtension(ext),
+  };
+}
+
+async function prepareSessionAudioForGemini(
+  buffer: Buffer,
+  inputExt: string
+): Promise<Buffer> {
+  if (inputExt === "mp3") return buffer;
+  return convertAudioToMp3(buffer, inputExt);
+}
+
+export function buildTranscriptionAudioInput(buffer: Buffer) {
+  return {
+    type: "audio" as const,
+    data: buffer.toString("base64"),
+    mime_type: TRANSCRIPTION_INLINE_MIME,
+  };
+}
+
+export async function prepareSessionAudioForTranscription(
+  storagePath: string,
+  recorderMimeType?: string
+): Promise<{
+  buffer: Buffer;
+  mimeType: string;
+  inputExt: string;
+  storageContentType?: string;
+}> {
+  const bucket = getUploadsBucket();
+  const { data, error } = await createAdminClient().storage.from(bucket).download(storagePath);
+  if (error || !data) throw error ?? new Error("Failed to download file");
+
+  const raw = Buffer.from(await data.arrayBuffer());
+  const storageContentType = data.type || undefined;
+  const inputExt = resolveSessionInputExtension(
+    storagePath,
+    recorderMimeType,
+    storageContentType
+  );
+  const buffer = await prepareSessionAudioForGemini(raw, inputExt);
+
+  return {
+    buffer,
+    mimeType: TRANSCRIPTION_INLINE_MIME,
+    inputExt,
+    storageContentType: normalizeMime(storageContentType),
   };
 }
 
@@ -150,13 +234,33 @@ export async function uploadBufferToGemini(
 
 export async function uploadAudioFromSupabase(
   storagePath: string,
-  sessionId: string
+  sessionId: string,
+  recorderMimeType?: string
 ): Promise<{ uri: string; mimeType: string }> {
   const raw = await downloadSessionFile(storagePath);
-  const ext = extensionFromStoragePath(storagePath);
-  const { buffer, mimeType } = await prepareAudioForGemini(raw, { ext });
+  const inputExt = resolveSessionInputExtension(storagePath, recorderMimeType);
+  const mp3Buffer = await prepareSessionAudioForGemini(raw, inputExt);
 
-  const file = await uploadBufferToGemini(buffer, mimeType, `${sessionId}-audio`);
+  let file = await uploadBufferToGemini(mp3Buffer, "audio/mp3", `${sessionId}-audio`);
   if (!file.uri) throw new Error("Gemini file missing uri");
-  return { uri: file.uri, mimeType };
+
+  if (isUnsupportedGeminiAudioMime(file.mimeType)) {
+    const pathExt = extensionFromStoragePath(storagePath);
+    const retryExt =
+      recorderMimeType && pathExt !== inputExt
+        ? pathExt
+        : recorderMimeType
+          ? extensionForMime(recorderMimeType)
+          : pathExt;
+    const retriedBuffer = await prepareSessionAudioForGemini(raw, retryExt);
+    file = await uploadBufferToGemini(retriedBuffer, "audio/mp3", `${sessionId}-audio-retry`);
+    if (!file.uri) throw new Error("Gemini file missing uri after retry");
+    if (isUnsupportedGeminiAudioMime(file.mimeType)) {
+      throw new Error(
+        `Gemini registered unsupported audio MIME after transcode (path=${storagePath}, inputExt=${inputExt}, retryExt=${retryExt}, geminiMime=${normalizeMime(file.mimeType) ?? "unknown"})`
+      );
+    }
+  }
+
+  return { uri: file.uri, mimeType: "audio/mp3" };
 }

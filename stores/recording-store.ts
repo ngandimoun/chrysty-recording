@@ -5,7 +5,9 @@ import { MAX_CONTEXT_FILES } from "@/lib/context/constants";
 import {
   extensionForMime,
   getClientTimezone,
+  getMediaRecorderTimesliceMs,
   getRecorderConfig,
+  isApplePlatform,
 } from "@/lib/recording/browser-support";
 import { uploadRecordingKeyHeaders } from "@/lib/recording/recording-key";
 import type { KnowledgeObject } from "@/types";
@@ -98,7 +100,12 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
       }
     };
 
-    mediaRecorder.start(1000);
+    const timeslice = getMediaRecorderTimesliceMs();
+    if (timeslice === undefined) {
+      mediaRecorder.start();
+    } else {
+      mediaRecorder.start(timeslice);
+    }
 
     set({
       isRecording: true,
@@ -147,7 +154,6 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
       elapsedSeconds,
       contextFiles,
       recorderMimeType,
-      audioExtension,
     } = get();
     const id = sessionId ?? generateSessionId();
 
@@ -155,15 +161,20 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
       await new Promise<void>((resolve, reject) => {
         mediaRecorder.onstop = () => resolve();
         mediaRecorder.onerror = () => reject(new Error("Recording failed"));
-        try {
-          if (typeof mediaRecorder.requestData === "function") {
-            mediaRecorder.requestData();
+        void (async () => {
+          try {
+            if (typeof mediaRecorder.requestData === "function") {
+              mediaRecorder.requestData();
+            }
+            if (isApplePlatform()) {
+              await new Promise((r) => setTimeout(r, 150));
+            }
+            mediaRecorder.stop();
+            mediaRecorder.stream.getTracks().forEach((t) => t.stop());
+          } catch (err) {
+            reject(err instanceof Error ? err : new Error("Recording failed"));
           }
-        } catch {
-          /* optional on some browsers */
-        }
-        mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach((t) => t.stop());
+        })();
       });
     }
 
@@ -175,7 +186,7 @@ export const useRecordingStore = create<RecordingState>((set, get) => ({
       throw new Error("Recording was too short or empty. Please try again.");
     }
 
-    const ext = audioExtension || extensionForMime(mimeType);
+    const ext = extensionForMime(mimeType);
     const formData = new FormData();
     formData.append("audio", blob, `recording.${ext}`);
     formData.append("sessionId", id);

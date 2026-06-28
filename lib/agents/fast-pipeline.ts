@@ -44,7 +44,10 @@ import {
   uploadAttachmentsForSession,
   type GeminiContextPart,
 } from "@/lib/gemini/upload-session-context";
-import { uploadAudioFromSupabase } from "@/lib/gemini/upload-gemini-file";
+import {
+  buildTranscriptionAudioInput,
+  prepareSessionAudioForTranscription,
+} from "@/lib/gemini/upload-gemini-file";
 import { getGeminiClient } from "@/lib/gemini/client";
 import {
   accumulateInteractionUsage,
@@ -117,24 +120,32 @@ export async function runFastPipeline({
   const trackUsage = (usage?: { total_input_tokens?: number; total_output_tokens?: number }) =>
     accumulateInteractionUsage(tokenUsage, usage);
 
-  await updateSession(sessionId, {
-    status: "processing",
-    processing_step: 0,
-    error_message: null,
-    enrichment_status: "pending",
-    pipeline_state: { phase: "transcribing" as PipelinePhase },
-  });
-  await onStep?.(0);
-
   const session = await getSession(sessionId);
   if (!session?.audio_path || !session.recording_key) {
     throw new Error("Session, audio path, or recording key not found");
   }
 
+  const pipelineState = (session.pipeline_state as Record<string, unknown> | null) ?? {};
+  const recorderMimeType =
+    typeof pipelineState.recorderMimeType === "string"
+      ? pipelineState.recorderMimeType
+      : undefined;
+
+  await updateSession(sessionId, {
+    status: "processing",
+    processing_step: 0,
+    error_message: null,
+    enrichment_status: "pending",
+    pipeline_state: { ...pipelineState, phase: "transcribing" as PipelinePhase },
+  });
+  await onStep?.(0);
+
   const recordingKey = session.recording_key;
 
-  const geminiFile = await uploadAudioFromSupabase(session.audio_path, sessionId);
-  await updateSession(sessionId, { gemini_file_uri: geminiFile.uri });
+  const transcriptionAudio = await prepareSessionAudioForTranscription(
+    session.audio_path,
+    recorderMimeType
+  );
 
   const contextParts = await uploadAttachmentsForSession(sessionId);
 
@@ -145,7 +156,7 @@ export async function runFastPipeline({
     model: GEMINI_MODELS.transcription,
     input: [
       { type: "text", text: transcriptionPrompt },
-      { type: "audio", uri: geminiFile.uri, mime_type: geminiFile.mimeType },
+      buildTranscriptionAudioInput(transcriptionAudio.buffer),
       ...buildGeminiInputParts(contextParts),
     ] as Parameters<typeof client.interactions.create>[0]["input"],
     response_format: {

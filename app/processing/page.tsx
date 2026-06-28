@@ -316,6 +316,10 @@ export default function ProcessingPage() {
 
           <p className="text-sm text-muted-foreground">{error}</p>
 
+          {sessionId ? (
+            <p className="text-xs text-muted-foreground">Session: {sessionId}</p>
+          ) : null}
+
           <div className="flex flex-wrap justify-center gap-3">
 
             <button

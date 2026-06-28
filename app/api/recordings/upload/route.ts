@@ -72,8 +72,9 @@ export async function POST(request: NextRequest) {
       (typeof recorderMimeType === "string" && recorderMimeType) ||
       audio.type ||
       "audio/webm";
+    const normalizedAudioMime = audioMime.split(";")[0].trim();
 
-    if (!isAllowedAudioMime(audioMime)) {
+    if (!isAllowedAudioMime(normalizedAudioMime)) {
       return NextResponse.json({ error: "Unsupported audio format" }, { status: 400 });
     }
 
@@ -107,15 +108,14 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const audioFileName = audio instanceof File ? audio.name : undefined;
-    const ext = resolveAudioExtension(audioMime, audioFileName);
+    const ext = resolveAudioExtension(normalizedAudioMime);
     const bucket = getUploadsBucket();
     const storagePath = `${identity.recordingKey}/${sessionId}/audio.${ext}`;
 
     const { error: uploadError } = await createAdminClient()
       .storage.from(bucket)
       .upload(storagePath, buffer, {
-        contentType: audioMime.split(";")[0],
+        contentType: normalizedAudioMime,
         upsert: true,
       });
 
@@ -132,6 +132,7 @@ export async function POST(request: NextRequest) {
       userId: identity.userId,
       recordingKey: identity.recordingKey,
       clientTimezone,
+      recorderMimeType: normalizedAudioMime,
     });
 
     const attachmentRecords: Array<{

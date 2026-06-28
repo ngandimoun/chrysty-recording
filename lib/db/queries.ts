@@ -113,7 +113,12 @@ export async function createSession(params: {
   userId?: string;
   recordingKey?: string;
   clientTimezone?: string;
+  recorderMimeType?: string;
 }): Promise<RecordingSessionRow> {
+  const pipelineState: Record<string, unknown> = {};
+  if (params.clientTimezone) pipelineState.clientTimezone = params.clientTimezone;
+  if (params.recorderMimeType) pipelineState.recorderMimeType = params.recorderMimeType;
+
   const { data, error } = await createUntypedAdminClient()
     .from("recording_sessions")
     .upsert({
@@ -127,9 +132,7 @@ export async function createSession(params: {
       workspace_id: params.workspaceId ?? null,
       user_id: params.userId ?? null,
       recording_key: params.recordingKey ?? null,
-      pipeline_state: params.clientTimezone
-        ? { clientTimezone: params.clientTimezone }
-        : {},
+      pipeline_state: pipelineState,
       ...(params.clientTimezone ? { client_timezone: params.clientTimezone } : {}),
     })
     .select("*")

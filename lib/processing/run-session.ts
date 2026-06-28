@@ -30,7 +30,8 @@ export async function runSessionProcessing(sessionId: string): Promise<void> {
       updateSession(sessionId, { enrichment_status: "failed" }).catch(() => {});
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Processing failed";
+    const detail = err instanceof Error ? err.message : "Processing failed";
+    const message = `[${sessionId}] ${detail}`;
     await updateSession(sessionId, { status: "failed", error_message: message }).catch(() => {});
     throw err;
   }

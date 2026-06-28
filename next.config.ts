@@ -4,7 +4,7 @@ const nextConfig: NextConfig = {
   reactStrictMode: true,
   serverExternalPackages: ["ffmpeg-static"],
   outputFileTracingIncludes: {
-    "/api/recordings/process": ["./node_modules/ffmpeg-static/ffmpeg"],
+    "/api/recordings/process": ["./node_modules/ffmpeg-static/**/*"],
   },
 };
 

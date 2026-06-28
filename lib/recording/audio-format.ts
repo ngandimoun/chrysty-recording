@@ -16,6 +16,7 @@ export function extensionForMime(mime: string): string {
   const base = mime.split(";")[0].trim().toLowerCase();
   switch (base) {
     case "audio/mp4":
+    case "audio/m4a":
     case "audio/x-m4a":
       return "m4a";
     case "audio/mpeg":
@@ -38,12 +39,26 @@ export function extensionFromFilename(name: string): string | null {
   return match ? match[1].toLowerCase() : null;
 }
 
-export function resolveAudioExtension(mime: string, filename?: string): string {
-  const fromName = filename ? extensionFromFilename(filename) : null;
-  if (fromName && ["webm", "m4a", "mp4", "ogg", "wav", "mp3", "aac"].includes(fromName)) {
-    return fromName === "mp4" ? "m4a" : fromName;
-  }
+export function resolveAudioExtension(mime: string): string {
   return extensionForMime(mime);
+}
+
+const LIKELY_AUDIO_EXTENSIONS = new Set([
+  "m4a",
+  "mp4",
+  "aac",
+  "caf",
+  "mp3",
+  "wav",
+  "ogg",
+  "webm",
+]);
+
+export function isLikelyAudioFile(mimeType: string, fileName?: string): boolean {
+  const base = mimeType.toLowerCase().split(";")[0].trim();
+  if (base.startsWith("audio/")) return true;
+  const fromName = fileName ? extensionFromFilename(fileName) : null;
+  return fromName !== null && LIKELY_AUDIO_EXTENSIONS.has(fromName);
 }
 
 export function isAllowedAudioMime(mime: string): boolean {
