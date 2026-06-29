@@ -11,6 +11,9 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Chrysty Recording",
   description: "The user records. Chrysty learns.",
+  other: {
+    google: "notranslate",
+  },
 };
 
 export default function RootLayout({
@@ -19,8 +22,11 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${GeistSans.variable} ${GeistMono.variable} antialiased`}>
+    <html lang="en" translate="no" suppressHydrationWarning>
+      <body
+        className={`notranslate ${GeistSans.variable} ${GeistMono.variable} antialiased`}
+        translate="no"
+      >
         <ThemeProvider>
           <SessionBootstrap>
             <RecordingAppShell>
